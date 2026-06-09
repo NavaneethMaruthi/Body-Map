@@ -21,13 +21,13 @@ export function AuthProvider({ children }) {
     return res.data;
   };
 
-  const register = async (name, email, password) => {
-    const res = await api.post('/auth/register', { name, email, password });
-    localStorage.setItem('token', res.data.token);
-    localStorage.setItem('user', JSON.stringify(res.data.user));
-    setUser(res.data.user);
-    return res.data;
-  };
+  const register = async (name, email, password, gender) => {
+  const res = await api.post('/auth/register', { name, email, password, gender });
+  localStorage.setItem('token', res.data.token);
+  localStorage.setItem('user', JSON.stringify(res.data.user));
+  setUser(res.data.user);
+  return res.data;
+};
 
   const logout = () => {
     localStorage.removeItem('token');

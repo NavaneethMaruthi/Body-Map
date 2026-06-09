@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -10,6 +10,7 @@ export default function Login() {
   const [name, setName]         = useState('');
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
+  const [gender, setGender]     = useState('male');
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
 
@@ -21,7 +22,7 @@ export default function Login() {
       if (isLogin) {
         await login(email, password);
       } else {
-        await register(name, email, password);
+        await register(name, email, password, gender);
       }
       navigate('/dashboard');
     } catch (err) {
@@ -64,39 +65,72 @@ export default function Login() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
-            <div>
-              <label className="text-gray-400 text-sm block mb-1">Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="Navaneeth"
-                required
-                className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500"
-              />
-            </div>
+            <>
+              <div>
+                <label className="text-gray-400 text-sm block mb-1">Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Navaneeth"
+                  required
+                  className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500"
+                />
+              </div>
+
+              {/* Gender Toggle */}
+              <div>
+                <label className="text-gray-400 text-sm block mb-2">Body Model</label>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setGender('male')}
+                    className={`flex-1 py-3 rounded-xl border text-sm font-medium transition-all ${
+                      gender === 'male'
+                        ? 'border-teal-500 bg-teal-500/10 text-teal-400'
+                        : 'border-gray-700 text-gray-500 hover:border-gray-600'
+                    }`}
+                  >
+                    ♂ Male
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGender('female')}
+                    className={`flex-1 py-3 rounded-xl border text-sm font-medium transition-all ${
+                      gender === 'female'
+                        ? 'border-teal-500 bg-teal-500/10 text-teal-400'
+                        : 'border-gray-700 text-gray-500 hover:border-gray-600'
+                    }`}
+                  >
+                    ♀ Female
+                  </button>
+                </div>
+              </div>
+            </>
           )}
+
           <div>
             <label className="text-gray-400 text-sm block mb-1">Email</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="abcd@email.com"
+              placeholder="you@example.com"
               required
               className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500"
             />
           </div>
+
           <div>
             <label className="text-gray-400 text-sm block mb-1">Password</label>
             <input
-  type="password"
-  value={password}
-  onChange={e => setPassword(e.target.value)}
-  placeholder="••••••••"
-  required
-  className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500"
-/>
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500"
+            />
           </div>
 
           {error && (
@@ -111,7 +145,6 @@ export default function Login() {
             {loading ? 'Please wait...' : isLogin ? 'Login' : 'Create Account'}
           </button>
         </form>
-
       </div>
     </div>
   );
