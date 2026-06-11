@@ -8,7 +8,6 @@ const getRegionFromPoint = (point) => {
   const x = point.x;
   const z = point.z;
 
-  // ── BACK SIDE ──────────────────────────────────────
   if (z < 0) {
     if (y > 1.35)                                       return 'head';
     if (y > 1.2)                                        return 'neck';
@@ -19,8 +18,8 @@ const getRegionFromPoint = (point) => {
     if (y > 0.5 && y < 0.75 && x > -0.3 && x < 0.3)   return 'lower_back';
     if (y > 0.1 && y < 0.95 && x < -0.2)              return 'left_arm';
     if (y > 0.1 && y < 0.95 && x > 0.2)               return 'right_arm';
-    if (y < 0.5 && y > 0.3 && x < -0.1)              return 'left_glute';
-    if (y < 0.5 && y > 0.3 && x > 0.1)               return 'right_glute';
+    if (y < 0.5 && y > 0.3 && x < -0.05)              return 'left_glute';
+    if (y < 0.5 && y > 0.3 && x > 0.05)               return 'right_glute';
     if (y < 0.3 && y > -0.25 && x < -0.1)              return 'left_hamstring';
     if (y < 0.3 && y > -0.25 && x > 0.1)               return 'right_hamstring';
     if (y > -0.25 && y < 0.1 && x < -0.1)             return 'left_knee';
@@ -32,7 +31,6 @@ const getRegionFromPoint = (point) => {
     return 'Selected region is not identifiable';
   }
 
-  // ── FRONT SIDE (your original — untouched) ─────────
   if (y > 1.35)                                        return 'head';
   if (y > 1.2)                                         return 'neck';
   if (y > 0.95 && x < -0.3)                           return 'left_shoulder';
@@ -51,25 +49,57 @@ const getRegionFromPoint = (point) => {
   return 'Selected region is not identifiable';
 };
 
-function Model({ onBodyClick, modelPath }) {
+const getSeverityColor = (severity) => {
+  if (severity <= 3) return '#4ade80';
+  if (severity <= 6) return '#ca8a04'; // dark yellow
+  return '#991b1b';                    // dark red
+};
+
+function PainMarker({ position, color }) {
+  return (
+    <mesh position={[position.x, position.y, position.z]}>
+      <sphereGeometry args={[0.04, 16, 16]} />
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={0.8}
+        transparent
+        opacity={0.9}
+      />
+    </mesh>
+  );
+}
+
+function Model({ onBodyClick, logs, modelPath }) {
   const { scene } = useGLTF(modelPath);
   const ref = useRef();
 
   const handleClick = (e) => {
-  e.stopPropagation();
-  const point  = e.point;
-  const region = getRegionFromPoint(point);
-  onBodyClick({ coords3D: point, bodyRegion: region });
-};
+    e.stopPropagation();
+    const point  = e.point;
+    const region = getRegionFromPoint(point);
+    onBodyClick({ coords3D: { x: point.x, y: point.y, z: point.z }, bodyRegion: region });
+  };
 
   return (
-    <primitive
-      ref={ref}
-      object={scene}
-      scale={1.5}
-      position={[0, -1, 0]}
-      onClick={handleClick}
-    />
+    <>
+      <primitive
+        ref={ref}
+        object={scene}
+        scale={1.5}
+        position={[0, -1, 0]}
+        onClick={handleClick}
+      />
+      {logs.map(log => (
+        log.coords3D && (
+          <PainMarker
+            key={log._id}
+            position={log.coords3D}
+            color={getSeverityColor(log.severity)}
+          />
+        )
+      ))}
+    </>
   );
 }
 
@@ -96,7 +126,7 @@ export default function BodyModel({ onBodyClick, logs }) {
       <directionalLight position={[-2, 3, -2]} intensity={0.4} />
 
       <Suspense fallback={<LoadingFallback />}>
-        <Model onBodyClick={onBodyClick} modelPath={modelPath} />
+        <Model onBodyClick={onBodyClick} logs={logs} modelPath={modelPath} />
         <Environment preset="city" />
       </Suspense>
 

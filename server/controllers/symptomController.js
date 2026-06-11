@@ -39,6 +39,23 @@ exports.deleteLog = async (req, res) => {
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
+exports.updateLog = async (req, res) => {
+  const { severity, category, notes } = req.body;
+  try {
+    const log = await SymptomLog.findById(req.params.id);
+    if (!log) return res.status(404).json({ msg: 'Log not found' });
+    if (log.user.toString() !== req.user.id)
+      return res.status(401).json({ msg: 'Not authorized' });
+
+    log.severity = severity ?? log.severity;
+    log.category = category ?? log.category;
+    log.notes    = notes ?? log.notes;
+    await log.save();
+    res.json(log);
+  } catch (err) {
+    res.status(500).json({ msg: 'Server error', error: err.message });
+  }
+};
 
 exports.getSummary = async (req, res) => {
   try {

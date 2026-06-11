@@ -2,6 +2,7 @@ import { useState } from 'react';
 import api from '../api/axios';
 
 export default function SymptomPanel({ region, onSaved, onCancel }) {
+  console.log('SymptomPanel region:', region);
   const [severity, setSeverity] = useState(5);
   const [category, setCategory] = useState('muscle');
   const [notes, setNotes]       = useState('');
@@ -14,12 +15,12 @@ export default function SymptomPanel({ region, onSaved, onCancel }) {
     setError('');
     try {
       await api.post('/symptoms', {
-        bodyRegion: region.bodyRegion,
-        coords3D:   region.coords3D,
-        severity,
-        category,
-        notes,
-      });
+  bodyRegion: region.bodyRegion,
+  coords3D:   region.coords3D,
+  severity,
+  category,
+  notes,
+});
       onSaved();
     } catch (err) {
       setError(err.response?.data?.msg || 'Something went wrong');

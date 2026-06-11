@@ -2,29 +2,35 @@ import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import BodyModel from '../components/BodyModel';
 import SymptomPanel from '../components/SymptomPanel';
+import EditModal from '../components/EditModal';
 import api from '../api/axios';
 
 export default function Dashboard() {
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [logs, setLogs]                     = useState([]);
   const [summary, setSummary]               = useState(null);
+  const [editingLog, setEditingLog]         = useState(null);
 
   const fetchLogs = async () => {
     try {
       const res = await api.get('/symptoms');
       setLogs(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   const fetchSummary = async () => {
     try {
       const res = await api.get('/symptoms/summary');
       setSummary(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
+  };
+
+  const deleteLog = async (id) => {
+    try {
+      await api.delete(`/symptoms/${id}`);
+      fetchLogs();
+      fetchSummary();
+    } catch (err) { console.error(err); }
   };
 
   useEffect(() => {
@@ -60,8 +66,6 @@ export default function Dashboard() {
 
         {/* Right Sidebar */}
         <div className="w-80 bg-gray-900 border-l border-gray-800 flex flex-col overflow-y-auto">
-
-          {/* Symptom Panel or Summary */}
           {selectedRegion ? (
             <SymptomPanel
               region={selectedRegion}
@@ -85,7 +89,7 @@ export default function Dashboard() {
                   </div>
                   <div className="bg-gray-800 rounded-xl p-4">
                     <p className="text-gray-400 text-xs">Most Affected</p>
-                    <p className="text-white text-sm font-semibold capitalize">{summary.mostAffectedRegion?.replace('_', ' ')}</p>
+                    <p className="text-white text-sm font-semibold capitalize">{summary.mostAffectedRegion?.replace(/_/g, ' ')}</p>
                   </div>
                 </div>
               )}
@@ -99,7 +103,9 @@ export default function Dashboard() {
                   logs.slice(0, 5).map(log => (
                     <div key={log._id} className="bg-gray-800 rounded-xl p-4">
                       <div className="flex justify-between items-start">
-                        <p className="text-white text-sm font-medium capitalize">{log.bodyRegion?.replace('_', ' ')}</p>
+                        <p className="text-white text-sm font-medium capitalize">
+                          {log.bodyRegion?.replace(/_/g, ' ')}
+                        </p>
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                           log.severity <= 3 ? 'bg-green-900 text-green-400' :
                           log.severity <= 6 ? 'bg-yellow-900 text-yellow-400' :
@@ -110,6 +116,20 @@ export default function Dashboard() {
                       </div>
                       <p className="text-gray-500 text-xs mt-1 capitalize">{log.category}</p>
                       {log.notes && <p className="text-gray-400 text-xs mt-1">{log.notes}</p>}
+                      <div className="flex gap-2 mt-3">
+                        <button
+                          onClick={() => setEditingLog(log)}
+                          className="flex-1 text-xs py-1.5 rounded-lg bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors"
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => deleteLog(log._id)}
+                          className="flex-1 text-xs py-1.5 rounded-lg bg-red-900/40 hover:bg-red-900/70 text-red-400 transition-colors"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
@@ -119,6 +139,19 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Edit Modal — renders on top of everything */}
+      {editingLog && (
+        <EditModal
+          log={editingLog}
+          onClose={() => setEditingLog(null)}
+          onSaved={() => {
+            setEditingLog(null);
+            fetchLogs();
+            fetchSummary();
+          }}
+        />
+      )}
     </div>
   );
 }

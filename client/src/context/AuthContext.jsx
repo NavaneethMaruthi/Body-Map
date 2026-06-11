@@ -8,10 +8,26 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('user');
-    if (stored) setUser(JSON.parse(stored));
-    setLoading(false);
-  }, []);
+  const stored = localStorage.getItem('user');
+  const token  = localStorage.getItem('token');
+  if (stored && token) {
+    // Check token expiry
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.exp * 1000 > Date.now()) {
+        setUser(JSON.parse(stored));
+      } else {
+        // Token expired — clear storage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
+    } catch {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+  }
+  setLoading(false);
+}, []);
 
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
