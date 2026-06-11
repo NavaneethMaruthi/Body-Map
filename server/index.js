@@ -19,6 +19,7 @@ app.post('/test', (req, res) => {
 
 app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/symptoms', require('./routes/symptoms'));
+app.use('/api/insights', require('./routes/insights'));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

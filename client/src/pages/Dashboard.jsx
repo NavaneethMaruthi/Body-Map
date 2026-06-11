@@ -43,7 +43,6 @@ export default function Dashboard() {
   };
 
   const handleLogSaved = () => {
-    setSelectedRegion(null);
     fetchLogs();
     fetchSummary();
   };
