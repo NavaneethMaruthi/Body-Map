@@ -15,6 +15,9 @@
 ### Login & Register
 ![Login](./screenshots/login.png)
 
+### AI Insight
+![AI Insight](./screenshots/ai.png)
+
 ---
 
 ## ✨ Features
