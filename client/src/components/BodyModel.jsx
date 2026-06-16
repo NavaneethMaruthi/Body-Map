@@ -18,10 +18,10 @@ const getRegionFromPoint = (point) => {
     if (y > 0.5 && y < 0.75 && x > -0.3 && x < 0.3)   return 'lower_back';
     if (y > 0.1 && y < 0.95 && x < -0.2)              return 'left_arm';
     if (y > 0.1 && y < 0.95 && x > 0.2)               return 'right_arm';
-    if (y < 0.5 && y > 0.3 && x < -0.05)              return 'left_glute';
-    if (y < 0.5 && y > 0.3 && x > 0.05)               return 'right_glute';
-    if (y < 0.3 && y > -0.25 && x < -0.1)              return 'left_hamstring';
-    if (y < 0.3 && y > -0.25 && x > 0.1)               return 'right_hamstring';
+    if (y < 0.5 && y > 0.3 && x < -0.05)              return 'right_glute';
+    if (y < 0.5 && y > 0.3 && x > 0.05)               return 'left_glute';
+    if (y < 0.3 && y > -0.25 && x < -0.1)              return 'right_hamstring';
+    if (y < 0.3 && y > -0.25 && x > 0.1)               return 'left_hamstring';
     if (y > -0.25 && y < 0.1 && x < -0.1)             return 'left_knee';
     if (y > -0.25 && y < 0.1 && x > 0.1)              return 'right_knee';
     if (y > -0.5 && y < -0.25 && x < -0.1)              return 'left_calf';
