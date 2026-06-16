@@ -10,7 +10,8 @@
 ## 📸 Screenshots
 
 ### Dashboard — 3D Body Model
-![Dashboard](./screenshots/dashboard.png)
+![Dashboard - Male](./screenshots/dashboard.png)
+![Dashboard - Female](./screenshots/female.png)
 
 ### Login & Register
 ![Login](./screenshots/login.png)

@@ -3,6 +3,20 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
 import { useAuth } from '../context/AuthContext';
 
+const MALE_CONFIG = {
+  scale:     1.5,
+  posY:      -1,
+  cameraPos: [0, 1, 4],
+  maxDist:   8,
+};
+
+const FEMALE_CONFIG = {
+  scale:     [1.7, 1.5, 1.5],
+  posY:      -1,
+  cameraPos: [0, 1, 4],
+  maxDist:   8,
+};
+
 const getRegionFromPoint = (point) => {
   const y = point.y;
   const x = point.x;
@@ -11,23 +25,23 @@ const getRegionFromPoint = (point) => {
   if (z < 0) {
     if (y > 1.35)                                       return 'head';
     if (y > 1.2)                                        return 'neck';
-    if (y > 0.95 && x < -0.3)                          return 'right_shoulder';
-    if (y > 0.95 && x > 0.3)                           return 'left_shoulder';
+    if (y > 0.95 && x < -0.25)                          return 'right_shoulder';
+    if (y > 0.95 && x > 0.25)                           return 'left_shoulder';
     if (y > 0.9 && x > -0.3 && x < 0.3)               return 'upper_back';
-    if (y > 0.75 && y < 0.95 && x > -0.3 && x < 0.3)  return 'middle_back';
-    if (y > 0.5 && y < 0.75 && x > -0.3 && x < 0.3)   return 'lower_back';
+    if (y > 0.75 && y < 0.95 && x > -0.3 && x < 0.3) return 'middle_back';
+    if (y > 0.5 && y < 0.75 && x > -0.3 && x < 0.3)  return 'lower_back';
     if (y > 0.1 && y < 0.95 && x < -0.2)              return 'right_arm';
     if (y > 0.1 && y < 0.95 && x > 0.2)               return 'left_arm';
     if (y < 0.5 && y > 0.3 && x < -0.05)              return 'right_glute';
     if (y < 0.5 && y > 0.3 && x > 0.05)               return 'left_glute';
-    if (y < 0.3 && y > -0.25 && x < -0.1)              return 'right_hamstring';
-    if (y < 0.3 && y > -0.25 && x > 0.1)               return 'left_hamstring';
+    if (y < 0.3 && y > -0.25 && x < -0.1)             return 'right_hamstring';
+    if (y < 0.3 && y > -0.25 && x > 0.1)              return 'left_hamstring';
     if (y > -0.25 && y < 0.1 && x < -0.1)             return 'right_knee';
     if (y > -0.25 && y < 0.1 && x > 0.1)              return 'left_knee';
-    if (y > -0.5 && y < -0.25 && x < -0.1)              return 'right_calf';
-    if (y > -0.5 && y < -0.25 && x > 0.1)               return 'left_calf';
-     if (y > -1.1 && y < -0.9 && x > 0.1)               return 'heel';
-    if (y > -1.1 && y < -0.9 && x < -0.1)               return 'heel';
+    if (y > -0.5 && y < -0.25 && x < -0.1)            return 'right_calf';
+    if (y > -0.5 && y < -0.25 && x > 0.1)             return 'left_calf';
+    if (y > -1.1 && y < -0.9 && x > 0.1)              return 'heel';
+    if (y > -1.1 && y < -0.9 && x < -0.1)             return 'heel';
     return 'Selected region is not identifiable';
   }
 
@@ -42,17 +56,19 @@ const getRegionFromPoint = (point) => {
   if (y > 0.3 && y < 0.6 && x > -0.3 && x < 0.3)    return 'abdomen';
   if (y < 0.3 && y > -0.1 && x < -0.1)               return 'left_thigh';
   if (y < 0.3 && y > -0.1 && x > 0.1)                return 'right_thigh';
-  if (y > -0.25 && y < 0.1 && x < -0.1)              return 'left_knee';
-  if (y > -0.25 && y < 0.1 && x > 0.1)               return 'right_knee';
-  if (y > -1 && y < -0.25 && x < -0.1)               return 'left_foot';
-  if (y > -1 && y < -0.25 && x > 0.1)                return 'right_foot';
+  if (y > -0.25 && y < 0.1 && x < -0.05)              return 'left_knee';
+  if (y > -0.25 && y < 0.1 && x > 0.05)               return 'right_knee';
+    if (y > -0.5  && x < -0.1)            return 'right_shin';
+    if (y > -0.5  && x > 0.1)             return 'left_shin';
+  if (y > -1 && y < -0.25 && x < -0.05)               return 'right_foot';
+  if (y > -1 && y < -0.25 && x > 0.05)                return 'left_foot';
   return 'Selected region is not identifiable';
 };
 
 const getSeverityColor = (severity) => {
   if (severity <= 3) return '#4ade80';
-  if (severity <= 6) return '#ca8a04'; // dark yellow
-  return '#991b1b';                    // dark red
+  if (severity <= 6) return '#ca8a04';
+  return '#991b1b';
 };
 
 function PainMarker({ position, color }) {
@@ -70,7 +86,7 @@ function PainMarker({ position, color }) {
   );
 }
 
-function Model({ onBodyClick, logs, modelPath }) {
+function Model({ onBodyClick, logs, modelPath, config }) {
   const { scene } = useGLTF(modelPath);
   const ref = useRef();
 
@@ -86,8 +102,8 @@ function Model({ onBodyClick, logs, modelPath }) {
       <primitive
         ref={ref}
         object={scene}
-        scale={1.5}
-        position={[0, -1, 0]}
+        scale={config.scale}
+        position={[0, config.posY, 0]}
         onClick={handleClick}
       />
       {logs.map(log => (
@@ -113,12 +129,14 @@ function LoadingFallback() {
 }
 
 export default function BodyModel({ onBodyClick, logs }) {
-  const { user } = useAuth();
-  const modelPath = user?.gender === 'female' ? '/models/female.glb' : '/models/male.glb';
+  const { user }  = useAuth();
+  const gender    = user?.gender;
+  const modelPath = gender === 'female' ? '/models/female.glb' : '/models/male.glb';
+  const config    = gender === 'female' ? FEMALE_CONFIG : MALE_CONFIG;
 
   return (
     <Canvas
-      camera={{ position: [0, 1, 4], fov: 50 }}
+      camera={{ position: config.cameraPos, fov: 50 }}
       style={{ background: '#030712' }}
     >
       <ambientLight intensity={0.8} />
@@ -126,14 +144,14 @@ export default function BodyModel({ onBodyClick, logs }) {
       <directionalLight position={[-2, 3, -2]} intensity={0.4} />
 
       <Suspense fallback={<LoadingFallback />}>
-        <Model onBodyClick={onBodyClick} logs={logs} modelPath={modelPath} />
+        <Model onBodyClick={onBodyClick} logs={logs} modelPath={modelPath} config={config} />
         <Environment preset="city" />
       </Suspense>
 
       <OrbitControls
         enablePan={false}
         minDistance={2}
-        maxDistance={8}
+        maxDistance={config.maxDist}
       />
     </Canvas>
   );
