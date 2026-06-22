@@ -185,13 +185,7 @@ Body-Map/
 
 ---
 
-## 📝 Resume Points
 
-- Built a full-stack health tracking web app using React, Three.js, Node.js, and MongoDB, featuring an interactive 3D human body model where users click to log symptoms, with JWT authentication, real-time severity visualization, and AI-powered health insights via a locally hosted LLaMA 3.2 model.
-
-- Developed an interactive 3D medical symptom tracker using React and Three.js with raycasting-based body region detection across front and back anatomy, dynamic pain markers color-coded by severity, and a responsive dashboard with real-time health analytics.
-
----
 
 ## 👨‍💻 Author
 
